@@ -1,7 +1,8 @@
-DNA双端测序原理illumina：   
-(https://blog.csdn.net/keepaware/article/details/114486031)   
-(https://blog.csdn.net/weixin_43843918/article/details/135899404)   
-RNA-seq:(https://www.bilibili.com/video/BV1XJ411r7bJ/?from=search&seid=9478135992416820142&spm_id_from=333.788.comment.all.click&vd_source=3720075e67a7b3080234abc490244540)
+DNA双端测序原理illumina:   
+[二代测序技术之illumina测序技术原理简介](https://blog.csdn.net/keepaware/article/details/114486031)   
+[Illumina测序原理详解](https://blog.csdn.net/weixin_43843918/article/details/135899404)   
+RNA-seq:    
+[RNA-seq介绍](https://www.bilibili.com/video/BV1XJ411r7bJ/?from=search&seid=9478135992416820142&spm_id_from=333.788.comment.all.click&vd_source=3720075e67a7b3080234abc490244540)
 
 # 工具
 sratoolkit：3.1.1   
@@ -399,7 +400,7 @@ write.csv(data_merge, "merge.csv", quote = FALSE, row.name = FALSE)
 - `merge`函数，合并数据框，`by`指定基于哪个列合并。
 
 ## 8.2.标准化
-[http://www.360doc.com/content/18/0112/02/50153987_721216719.shtml]
+[RNA-seq之RPKM\FPKM\TPM](http://www.360doc.com/content/18/0112/02/50153987_721216719.shtml)   
 RPKM：基因counts数/总reads数/基因长度。单端测序，先测序深度标准化，再基因长度标准化   
 FPKM：双端测序   
 TPM：先基因长度标准化，再测序深度标准化。每个样本TPM总和相同，可样本间比较   
@@ -580,7 +581,7 @@ dds
 ```
 ### 样本相关性
 - PCA分析
-(解读)[http://blog.genesino.com/2016/10/PCA/]
+[PCA解读](http://blog.genesino.com/2016/10/PCA/)
 ```
 # 接续着上面的构建得到的dds对象
 # DEseq2包提供了相应的函数、归一
@@ -734,7 +735,7 @@ diff_gene_symbols <- merge(diff_gene_dataframe, rat_symbols, by = c("ensembl_gen
 write.table(result, "../stat/all_gene.tsv", sep="\t", quote = FALSE)
 write.table(diff_gene_symbols, "../stat/diff_gene.tsv", row.names = F,sep="\t", quote = FALSE)
 ```
-- 统计样本的差异基因***???**
+- 统计样本的差异基因**???**
 ```bash
 cd ~/project/rat/output/stat
 echo -e "sample\tnum" > all_samples.tsv
