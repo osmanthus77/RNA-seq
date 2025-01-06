@@ -4,28 +4,28 @@ DNA双端测序原理illumina：
 RNA-seq:(https://www.bilibili.com/video/BV1XJ411r7bJ/?from=search&seid=9478135992416820142&spm_id_from=333.788.comment.all.click&vd_source=3720075e67a7b3080234abc490244540)
 
 # 工具
-sratoolkit：3.1.1
-fastqc：0.12.1
-multiqc：1.26
-cutadapt：5.0
-trimgalore：0.6.3
-fastp：0.24.0
-trimmomatic：0.39
-hisat2：2.2.1
-sortmerna：2.1
-samtools：1.21
-HTseq：2.0.9
-R：4.4.2
-parallel：202411122
-stringtie：2.2.3
-R包：
-    ballgown：2.38.0
-    DESeq2：1.46.0
-    pheatmap：1.0.12
-    biomaRt：2.62.0
-    org.Rn.eg.db：3.20.0
-    clusterProfiler：4.14.4
-    ggplot2:3.5.1
+sratoolkit：3.1.1   
+fastqc：0.12.1   
+multiqc：1.26   
+cutadapt：5.0   
+trimgalore：0.6.3   
+fastp：0.24.0   
+trimmomatic：0.39   
+hisat2：2.2.1   
+sortmerna：2.1  
+samtools：1.21   
+HTseq：2.0.9   
+R：4.4.2   
+parallel：202411122   
+stringtie：2.2.3   
+R包：   
+    ballgown：2.38.0    
+    DESeq2：1.46.0     
+    pheatmap：1.0.12   
+    biomaRt：2.62.0    
+    org.Rn.eg.db：3.20.0    
+    clusterProfiler：4.14.4    
+    ggplot2:3.5.1    
     
 
 ## 3.1.参考数据下载步骤中：
