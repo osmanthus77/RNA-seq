@@ -39,7 +39,7 @@ R包：
 >5 dna:primary_assembly primary_assembly:mRatBN7.2:5:1:166875058:1 REF
 ```
 染色体编号后描述信息（组装版本、长度等等），影响后续脚本统计或分析，需要先去掉
-```
+```bash
 # 去除染色体编号后的描述信息
 cat rn6.raw.fa | perl -n -e 'if(m/^>(.+?)(?:\s|$)/){ print ">$1\n";}else{print}' > rn6.fa
 ```
@@ -60,7 +60,7 @@ GCTAGCTAGCTA
 ```
 
 **统计染色体长度的脚本**
-```
+```bash
 cat rn6.fa | perl -n -e '
     s/\r?\n//;
     if(m/^>(.+?)\s*$/){
@@ -93,7 +93,7 @@ cat rn6.fa | perl -n -e '
 
 ## 3.2.测试数据/实验数据下载步骤
 用SRAtoolkit中prefetch下载：
-```
+```bash
 # 后台下载
 $ nohup prefetch SRR2190795 SRR224018{2..7} SRR2240228 --output-directory . &
 ```
@@ -101,7 +101,7 @@ $ nohup prefetch SRR2190795 SRR224018{2..7} SRR2240228 --output-directory . &
 `nohup`命令，让任务在后台运行且不受终端关闭的影响。`prefectch`从SRA下载序列数据。`SRR2190795 SRR224018{2..7} SRR2240228`SRA ID号。    
 `--output-directory`output输出目录，`.`当前路径。`{2..7}`大括号扩展，一系列连续数字。`&`后台运行符（放在整个命令的最后）   
 下载结果是.sra文件，转换格式fastq-dump
-```
+```bash
 parallel -j 4 "
     fastq-dump --split-3 --gzip {1}
 " ::: $(ls *.sra)
@@ -129,12 +129,11 @@ CCCFFFFFHHHHHJIJJJJJJJJDHHJJJIJJJJJIJJJJJJJJJJJJJJJJJJJJJJJJJHH#################
 
 ## 4.1.质量评估
 创建目录、fastqc质量评估：
-```
+```bash
 mkdir -p ../output/fastqc
 fastqc -t 6 -o ../output/fastqc *.gz
-```
-分析报告在fastqc目录下，多个合并为一个：
-```
+
+# 分析报告在fastqc目录下，多个合并为一个
 multiqc .
 ```
 - 平均GC含量
@@ -144,7 +143,7 @@ multiqc .
 
 ## 4.2.剔除接头和质量差的
 ### 使用`cutadapt`剔除接头：
-```
+```bash
 cd ～/project/rat/sequence
 for i in $(ls *.fastq.gz);
 do
@@ -159,7 +158,7 @@ done
 - `--trim-n`剔除两端的N    
 
 ### 使用`trimmomatic`去除低质量区域：
-```
+```bash
 cd ~/project/rat/output/adapter
 mkdir trim
 
@@ -177,7 +176,7 @@ parallel -j 4 "    trimmomatic  SE -phred33 {1} ../trim/{1} \
     `MINLEN:30`若read长度小于 30 bp 则丢去整条read
 
 ### 再次质量评估
-```
+```bash
 cd ~/project/rat/output/trim
 mkdir ../fastqc_trim
 parallel -j 4 "
@@ -191,7 +190,7 @@ multiqc .
 # 5.去除rRNA序列
 如果在提取RNA过程中没有对RNA进行筛选的情况下，那么得到的大部分将会是rRNA，用`sortmerna`去除rRNA序列    
 ps：测序文件是为压缩格式
-```
+```bash
 # sortmrna数据库中，定义数据库变量
 sortmerna_ref_data=$(pwd)/rRNA_databases/silva-bac-16s-id90.fasta,$(pwd)/index/silva-bac-16s-db:\
 $(pwd)/rRNA_databases/silva-bac-23s-id98.fasta,$(pwd)/index/silva-bac-23s-db:\
@@ -208,7 +207,7 @@ $(pwd)/rRNA_databases/silva-euk-28s-id98.fasta,$(pwd)/index/silva-euk-28s-db:\
 $(pwd)/rRNA_databases/rfam-5s-database-id98.fasta,$(pwd)/index/rfam-5s-db:\
 $(pwd)/rRNA_databases/rfam-5.8s-database-id98.fasta,$(pwd)/index/rfam-5.8s-db
 ```
-```
+```bash
 cd ~/project/rat/output
 mkdir -p ./rRNA/discard
 
@@ -244,7 +243,7 @@ read比对定位到参考基因组的位置，确定read属于哪个基因，RNA
 ```
 hisat2-build [options] <参考基因组> <索引文件的前缀名称>
 ```
-```
+```bash
 cd ~/project/rat/genome
 mkdir index
 cd index
@@ -258,7 +257,7 @@ hisat2-build -p 6 ../rn6.chr1.fa rn6.chr1
 ```
 hisat2 [options] -x <索引文件> < -1 1测序文件 -2 2测序文件 -U 未成对测序文件 > < -S 输出的sam文件>
 ```
-```
+```bash
 cd ~/project/rat/output
 mkdir align
 cd rRNA
@@ -273,7 +272,7 @@ parallel -k -j 4 "
 `s/.fastq.gz$//`中第一个`.`表示任意单个字符，整体表示匹配任意字符后面跟着fastq.gz并删除这个部分`fastq.gz`
 
 - 总结比对情况：
-```
+```bash
 cd ~/project/rat/output/align
 file_list=($(ls *.log))
 
@@ -316,7 +315,7 @@ perl里面片段：读取比对率和比对时间，并控制输出结果为两�
 
 - 格式转换和排序
 sam格式存储核酸比对结果，将sam压缩得到bam或cram格式
-```
+```bash
 cd ~/project/rat/output/align
 
 # 排序并转bam格式，再建立索引
@@ -335,7 +334,7 @@ ls
 ```
 htseq-count [options] <比对后的sam/bam文件> <注释的gff文件>
 ```
-```
+```bash
 cd ~/project/rat/output
 mkdir HTseq
 
@@ -349,7 +348,7 @@ parallel -j 4 "
 # 8.合并表达矩阵、标准化
 ## 8.1.合并
 使用`R`中merge合并：
-```
+```r
 rm(list=ls())
 setwd("~/project/rat/output/HTseq")
 
@@ -406,7 +405,7 @@ FPKM：双端测序
 TPM：先基因长度标准化，再测序深度标准化。每个样本TPM总和相同，可样本间比较   
 CPM：基因counts数/总reads数   
 统计基因长度
-```
+```r
 library(GenomicFeatures)
 # 构建Granges对象
 txdb <- txdbmaker::makeTxDbFromGFF("rn6.gff" )
@@ -438,7 +437,7 @@ CPM=10^6*基因counts数/比对到基因组的总reads数
 RPKM=10^6*基因counts数/比对到基因组的总reads数/基因长度
 # 基因长度单位kb，外显子长度/1000
 ```
-```
+```r
 gene_len_file <- "rn6_gene_len.tsv"
 count_file <- "samples.count"
 
@@ -466,7 +465,7 @@ for(i in row.names(count)){
 TPM=（10^6*基因reads数/外显子长度之和）/ ∑(ni / gi)
 ∑(ni / gi)每个基因（reads/外显子长度和）之和
 ```
-```
+```r
 # 首先得到总的结果
 sum_ <- 0
 for(i in row.names(count)){
@@ -501,7 +500,7 @@ write.table(count, "123.normalize.count", col.names = TRUE, row.names = TRUE, se
 # 9.差异表达分析
 ## 9.1.数据前处理
 ### 删除HTseq-count结果的总结行:
-```
+```r
 dataframe <- read.csv("merge.csv", header=TRUE, row.names = 1)
 # 删除前五行
 countdata <- dataframe[-(1:5),]
@@ -511,7 +510,7 @@ head(countdata)
 ```
 ### 删除基因id的版本号
 基因名后面会有`.1`、`.2`标号，需删除
-```
+```r
 # 得到行的名
 row_names <- row.names(countdata)
 
@@ -521,13 +520,13 @@ name_replace <- gsub("\\.\\w+","", row.names(countdata))
 row.names(countdata) <- name_replace
 ```
 ### 去除低表达的基因
-```
+```r
 countdata <- countdata[rowSums(countdata) > 0,]
 ```
 ## 9.2.差异分析
 ### 安装R包
 - R包
-```
+```r
 # 使用bioconductor安装
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -552,7 +551,7 @@ library(clusterProfiler)
 dds <- DESeqDataSetFromMatrix(countData = cts, colData = coldata, design= ~ batch + condition)
 ```
 测序样本信息：
-```
+```bash
 cat <<EOF >./phenotype/phenotype.csv
 "ids","state","condition","treatment"
 "SRR2240185","Liver cirrhosis","DEN","treatment"
@@ -562,7 +561,7 @@ cat <<EOF >./phenotype/phenotype.csv
 EOF
 ```
 导入R中
-```
+```r
 # 刚才countdata已经得到
 countdata
 
@@ -582,7 +581,7 @@ dds
 ### 样本相关性
 - PCA分析
 [PCA解读](http://blog.genesino.com/2016/10/PCA/)
-```
+```r
 # 接续着上面的构建得到的dds对象
 # DEseq2包提供了相应的函数、归一
 vsdata <- rlog(dds, blind=FALSE)
@@ -590,7 +589,7 @@ vsdata <- rlog(dds, blind=FALSE)
 plotPCA(vsdata, intgroup="treatment") + ylim(-10, 10)
 ```
 - sample-to-sample distances热图
-```
+```r
 # 颜色管理包（不是必须）
 library("RColorBrewer")
 # 得到数据对象中基因的计数的转化值
@@ -613,7 +612,7 @@ pheatmap(sampleDistMatrix,
 ```
 ### 差异基因
 - `DESeq()`计算不同组别间的基因的表达差异，输入是之前构建的`dds`对象：
-```
+```r
 # 改变样本组别顺序
 dds$treatment <- factor(as.vector(dds$treatment), levels = c("control","treatment"))
 
@@ -644,7 +643,7 @@ ENSRNOG00000020560   517.413        4.61549  0.273691   16.8639  8.29356e-64  2.
 ```
 其中`log2 fold change (MLE): treatment treatment vs control `这行很重要    
 - 总结基因上下调情况
-```
+```r
 summary(result_order)
 ```
 输出：
@@ -660,11 +659,11 @@ low counts [2]     : 431, 17%
 [2] see 'independentFiltering' argument of ?results
 ```
 - 查看显著的基因数量
-```
+```r
 table(result_order$padj<0.05)
 ```
 - 保存数据
-```
+```r
 # 新建文件夹
 dir.create("../DESeq2")
 # 不用按照padj排序的结果，就保存按照基因名排序的
@@ -672,7 +671,7 @@ write.csv(result, file="../DESeq2/results.csv", quote = F)
 ```
 # 10.提取差异表达基因与注释
 ## 10.1.提取差异基因
-```
+```r
 # padj 小于 0.05 并且 Log2FC 大于 1 或者小于 -1
 diff_gene <- subset(result_order, padj < 0.05 & abs(log2FoldChange) > 1)
 
@@ -685,7 +684,7 @@ write.csv(diff_gene, file="../DESeq2/difference.csv", quote = F)
 ```
 ## 10.2.转化基因ID
 使用`ClusterProfiler`
-```
+```r
 # 安装clusterProfiler包
 BiocManager::install("clusterProfiler")
 # 这里我们分析的是大鼠，安装大鼠的数据库
@@ -710,7 +709,7 @@ ensembl_id_transform(ensembl_gene_id)
 ```
 ## 10.3.注释
 使用`biomaRt`
-```
+```r
 BiocManager::install("biomaRt")
 library("biomaRt")
 
@@ -722,7 +721,7 @@ ensembl_gene_id <- row.names(diff_gene)
 rat_symbols <- getBM(attributes=c("ensembl_gene_id","external_gene_name","entrezgene_id", "description"), filters = 'ensembl_gene_id', values = ensembl_gene_id, mart = mart)
 ```
 - 把基因矩阵和`symbols`合并数据框
-```
+```r
 # 生成用于合并的列
 diff_gene$ensembl_gene_id <- ensembl_gene_id
 # 将DESeq2对象转换为数据库
@@ -731,7 +730,7 @@ diff_gene_dataframe <- as.data.frame(diff_gene)
 diff_gene_symbols <- merge(diff_gene_dataframe, rat_symbols, by = c("ensembl_gene_id"))
 ```
 - 保存结果
-```
+```r
 write.table(result, "../stat/all_gene.tsv", sep="\t", quote = FALSE)
 write.table(diff_gene_symbols, "../stat/diff_gene.tsv", row.names = F,sep="\t", quote = FALSE)
 ```
@@ -752,7 +751,7 @@ done
 
 # 11.可视化
 - MA图
-```
+```r
 plotMA(result_order, ylim=c(-10,10))
 ```
 - 热图
@@ -778,7 +777,7 @@ pvalueCutoff	对应的阈值
 qvalueCutoff	对应的阈值
 ```
 ### GO分析：
-```
+```r
 for(i in c("MF", "BP", "CC")){
     ego <- enrichGO(gene       = rat_symbols$ensembl_gene_id,
                     OrgDb      = org.Rn.eg.db,
@@ -792,7 +791,7 @@ for(i in c("MF", "BP", "CC")){
 ```
 
 ### KEGG分析
-```
+```r
 kk <- enrichKEGG(gene = rat_symbols$entrezgene_id, 
                  organism ='rno',
                  pvalueCutoff = 0.05,
